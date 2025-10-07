@@ -1,0 +1,238 @@
+.mindmap-visualization {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: white;
+}
+
+.mindmap-controls {
+  padding: 0.75rem 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
+}
+
+.legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+
+.legend-color.root {
+  background: #28a745;
+}
+
+.legend-color.level1 {
+  background: #17a2b8;
+}
+
+.legend-color.level2 {
+  background: #ffc107;
+}
+
+.legend-color.level3 {
+  background: #6c757d;
+}
+
+.mindmap-flow-container {
+  flex: 1;
+  position: relative;
+  background: #fafafa;
+}
+
+.mindmap-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #7f8c8d;
+  text-align: center;
+  padding: 2rem;
+}
+
+.mindmap-empty p {
+  margin: 0.5rem 0;
+}
+
+.mindmap-info {
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* React Flow default node styles */
+.react-flow__node-default {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.react-flow__node-default:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.react-flow__node-default.selected {
+  box-shadow: 0 0 0 3px #007bff !important;
+}
+
+.node-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0.25rem;
+}
+
+.node-label {
+  font-weight: inherit;
+  text-align: center;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.node-level {
+  font-size: 0.7em;
+  opacity: 0.8;
+  margin-top: 0.1rem;
+}
+
+/* React Flow controls styling */
+.react-flow__controls {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: white;
+  border: none;
+  border-bottom: 1px solid #e9ecef;
+  color: #6c757d;
+  transition: all 0.2s ease;
+}
+
+.react-flow__controls-button:hover {
+  background: #f8f9fa;
+  color: #007bff;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+/* Mini-map styling */
+.react-flow__minimap {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Background styling */
+.react-flow__background {
+  background-color: #fafafa;
+}
+
+/* Edge styling */
+.react-flow__edge-path {
+  stroke: #ccc;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #007bff;
+  stroke-width: 3;
+}
+
+/* Handle styling */
+.react-flow__handle {
+  background: #007bff;
+  border: 2px solid white;
+  width: 8px;
+  height: 8px;
+}
+
+.react-flow__handle-top {
+  top: -4px;
+}
+
+.react-flow__handle-bottom {
+  bottom: -4px;
+}
+
+.react-flow__handle-left {
+  left: -4px;
+}
+
+.react-flow__handle-right {
+  right: -4px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .legend {
+    gap: 0.5rem;
+  }
+  
+  .legend-item {
+    font-size: 0.7rem;
+  }
+  
+  .legend-color {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .mindmap-info {
+    font-size: 0.7rem;
+  }
+  
+  .mindmap-info p {
+    margin: 0.25rem 0;
+  }
+}
+
+/* Custom scrollbar for React Flow */
+.mindmap-flow-container .react-flow__viewport {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f1f1f1;
+}
+
+.mindmap-flow-container .react-flow__viewport::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.mindmap-flow-container .react-flow__viewport::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.mindmap-flow-container .react-flow__viewport::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.mindmap-flow-container .react-flow__viewport::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

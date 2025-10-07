@@ -1,0 +1,308 @@
+.mindmap-page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+.mindmap-header {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #6c757d, #495057);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  max-width: 32px;
+  max-height: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(108,117,125,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.back-btn:hover {
+  background: linear-gradient(135deg, #495057, #343a40);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(108,117,125,0.4);
+}
+
+.mindmap-header h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.last-updated {
+  color: #7f8c8d;
+  font-size: 0.9rem;
+}
+
+.panels-container {
+  flex: 1;
+}
+
+.panel {
+  background: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 1rem;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-title-section h3 {
+  margin: 0 0 0.25rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
+}
+
+.panel-subtitle {
+  color: #7f8c8d;
+  font-size: 0.85rem;
+}
+
+.panel-toggle-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.panel-toggle-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translate(-50%, -50%);
+}
+
+.panel-toggle-btn:hover {
+  background: #dc3545;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+}
+
+.panel-toggle-btn:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.panel-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.panel-1 {
+  border-right: 1px solid #e9ecef;
+}
+
+.panel-2 {
+  border-right: 1px solid #e9ecef;
+}
+
+.loading, .error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 1.2rem;
+  color: #7f8c8d;
+}
+
+.error {
+  color: #dc3545;
+}
+
+.panel-restore-controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 0.5rem;
+  z-index: 1000;
+}
+
+.restore-panel-btn {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 1.25rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.restore-panel-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.restore-panel-btn:hover {
+  background: linear-gradient(135deg, #0056b3, #004085);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(0,123,255,0.4);
+}
+
+.restore-panel-btn:hover::before {
+  left: 100%;
+}
+
+.restore-panel-btn:active {
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+}
+
+.restore-panel-btn span:first-child {
+  font-size: 1.1em;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.restore-panel-btn:hover span:first-child {
+  transform: scale(1.2) rotate(5deg);
+}
+
+/* Dynamic grid layout based on visible panels */
+.panels-container {
+  display: grid;
+  gap: 1px;
+  background: #dee2e6;
+  overflow: hidden;
+}
+
+/* Default 3-column layout when all panels are visible */
+.panels-container:has(.panel-1):has(.panel-2):has(.panel-3) {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* 2-column layouts */
+.panels-container:has(.panel-1):has(.panel-2):not(:has(.panel-3)) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.panels-container:has(.panel-1):has(.panel-3):not(:has(.panel-2)) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.panels-container:has(.panel-2):has(.panel-3):not(:has(.panel-1)) {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Single column layout */
+.panels-container:has(.panel-1):not(:has(.panel-2)):not(:has(.panel-3)),
+.panels-container:has(.panel-2):not(:has(.panel-1)):not(:has(.panel-3)),
+.panels-container:has(.panel-3):not(:has(.panel-1)):not(:has(.panel-2)) {
+  grid-template-columns: 1fr;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+  .panels-container:has(.panel-1):has(.panel-2):has(.panel-3) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+  
+  .panel-3 {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .panels-container {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr 1fr 1fr !important;
+  }
+  
+  .panel-1, .panel-2, .panel-3 {
+    grid-column: 1 !important;
+  }
+  
+  .mindmap-header {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    align-self: stretch;
+    justify-content: space-between;
+  }
+  
+  .panel-restore-controls {
+    bottom: 10px;
+    right: 10px;
+    flex-direction: column;
+  }
+}
