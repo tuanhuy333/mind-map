@@ -56,9 +56,9 @@ function MindMapVisualization({ structure, onNodeClick, activeNode }) {
              isCollapsed: collapsedNodes.has(child.id)
            },
            style: {
-             background: level === 1 ? '#e3f2fd' : level === 2 ? '#f3e5f5' : '#f1f8e9',
-             color: level === 1 ? '#1976d2' : level === 2 ? '#7b1fa2' : '#388e3c',
-             border: activeNode && child.id === activeNode.id ? '3px solid #ff5722' : '2px solid #e0e0e0',
+             background: level === 1 ? 'var(--color-surface-elevated)' : level === 2 ? 'var(--color-surface)' : 'var(--color-background)',
+             color: level === 1 ? 'var(--color-primary)' : level === 2 ? 'var(--color-text-primary)' : 'var(--color-text-secondary)',
+             border: activeNode && child.id === activeNode.id ? '3px solid var(--color-primary)' : '2px solid var(--color-border)',
              borderRadius: '8px',
              fontSize: level === 1 ? '14px' : level === 2 ? '13px' : '12px',
              fontWeight: level <= 2 ? '600' : '500',
@@ -73,9 +73,9 @@ function MindMapVisualization({ structure, onNodeClick, activeNode }) {
 
         // Highlight active node
         if (activeNode && child.id === activeNode.id) {
-          node.style.background = '#fff3e0'
-          node.style.border = '3px solid #ff5722'
-          node.style.boxShadow = '0 4px 16px rgba(255,87,34,0.3)'
+          node.style.background = 'var(--color-primary-light)'
+          node.style.border = '3px solid var(--color-primary)'
+          node.style.boxShadow = '0 4px 16px var(--color-primary-light)'
         }
 
         nodes.push(node)
@@ -89,7 +89,7 @@ function MindMapVisualization({ structure, onNodeClick, activeNode }) {
              type: 'smoothstep',
              animated: false,
              style: { 
-               stroke: activeNode && child.id === activeNode.id ? '#ff5722' : '#bdbdbd',
+               stroke: activeNode && child.id === activeNode.id ? 'var(--color-primary)' : 'var(--color-border)',
                strokeWidth: activeNode && child.id === activeNode.id ? 3 : 2
              }
            }
@@ -195,10 +195,10 @@ function MindMapVisualization({ structure, onNodeClick, activeNode }) {
           <Controls />
           <MiniMap 
             nodeColor={(node) => {
-              if (node.data.level === 0) return '#28a745'
-              if (node.data.level === 1) return '#17a2b8'
-              if (node.data.level === 2) return '#ffc107'
-              return '#6c757d'
+              if (node.data.level === 0) return 'var(--color-primary)'
+              if (node.data.level === 1) return 'var(--color-primary)'
+              if (node.data.level === 2) return 'var(--color-text-primary)'
+              return 'var(--color-text-secondary)'
             }}
             nodeStrokeWidth={3}
             zoomable

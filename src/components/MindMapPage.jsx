@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { ArrowLeft, Minus, Edit3, Map, FileText } from 'lucide-react'
 import MarkdownEditor from './MarkdownEditor'
 import MindMapVisualization from './MindMapVisualization'
 import ContentViewer from './ContentViewer'
@@ -121,7 +122,7 @@ function MindMapPage() {
     <div className="mindmap-page">
       <header className="mindmap-header">
         <button className="back-btn" onClick={() => navigate('/')} title="Back to Home">
-          ←
+          <ArrowLeft size={20} />
         </button>
         <h1>{mindmap.name}</h1>
         <div className="header-actions">
@@ -144,7 +145,7 @@ function MindMapPage() {
                 onClick={() => togglePanel('panel1')}
                 title="Hide panel"
               >
-                −
+                <Minus size={18} />
               </button>
             </div>
             <MarkdownEditor
@@ -167,7 +168,7 @@ function MindMapPage() {
                 onClick={() => togglePanel('panel2')}
                 title="Hide panel"
               >
-                −
+                <Minus size={18} />
               </button>
             </div>
             <MindMapVisualization
@@ -180,19 +181,13 @@ function MindMapPage() {
 
         {panelStates.panel3 && (
           <div className="panel panel-3">
-            <div className="panel-header">
-              <div className="panel-title-section">
-                <h3>Content Viewer</h3>
-                <span className="panel-subtitle">Rendered document</span>
-              </div>
-              <button 
-                className="panel-toggle-btn"
-                onClick={() => togglePanel('panel3')}
-                title="Hide panel"
-              >
-                −
-              </button>
-            </div>
+            <button 
+              className="panel-toggle-btn panel-3-hide-btn"
+              onClick={() => togglePanel('panel3')}
+              title="Hide panel"
+            >
+              <Minus size={18} />
+            </button>
             <ContentViewer
               content={content}
               activeSection={activeSection}
@@ -209,7 +204,9 @@ function MindMapPage() {
             onClick={() => togglePanel('panel1')}
             title="Show Markdown Editor"
           >
-            <span>✏️</span>
+            <span>
+              <Edit3 size={18} />
+            </span>
             <span>Editor</span>
           </button>
         )}
@@ -219,7 +216,9 @@ function MindMapPage() {
             onClick={() => togglePanel('panel2')}
             title="Show Mind Map"
           >
-            <span>🗺️</span>
+            <span>
+              <Map size={18} />
+            </span>
             <span>Mind Map</span>
           </button>
         )}
@@ -229,7 +228,9 @@ function MindMapPage() {
             onClick={() => togglePanel('panel3')}
             title="Show Content Viewer"
           >
-            <span>📄</span>
+            <span>
+              <FileText size={18} />
+            </span>
             <span>Viewer</span>
           </button>
         )}

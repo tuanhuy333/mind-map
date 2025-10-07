@@ -2,13 +2,13 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: white;
+  background: var(--color-surface-elevated);
 }
 
 .mindmap-controls {
   padding: 0.75rem 1rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
 }
 
@@ -23,14 +23,14 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: #6c757d;
+  color: var(--color-text-secondary);
 }
 
 .legend-color {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 2px solid var(--color-surface-elevated);
 }
 
 .legend-color.root {
@@ -52,7 +52,7 @@
 .mindmap-flow-container {
   flex: 1;
   position: relative;
-  background: #fafafa;
+  background: var(--color-background);
 }
 
 .mindmap-empty {
@@ -61,9 +61,10 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #7f8c8d;
+  color: var(--color-text-muted);
   text-align: center;
   padding: 2rem;
+  font-style: italic;
 }
 
 .mindmap-empty p {
@@ -72,12 +73,13 @@
 
 .mindmap-info {
   padding: 0.5rem 1rem;
-  background: #f8f9fa;
-  border-top: 1px solid #e9ecef;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border);
   font-size: 0.8rem;
-  color: #7f8c8d;
+  color: var(--color-text-muted);
   text-align: center;
   flex-shrink: 0;
+  font-style: italic;
 }
 
 /* React Flow default node styles */
@@ -88,11 +90,11 @@
 
 .react-flow__node-default:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
 }
 
 .react-flow__node-default.selected {
-  box-shadow: 0 0 0 3px #007bff !important;
+  box-shadow: 0 0 0 3px var(--color-primary) !important;
 }
 
 .node-content {
@@ -119,56 +121,57 @@
 
 /* React Flow controls styling */
 .react-flow__controls {
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 2px;
 }
 
 .react-flow__controls-button {
-  background: white;
+  background: var(--color-primary);
   border: none;
-  border-bottom: 1px solid #e9ecef;
-  color: #6c757d;
+  color: white;
   transition: all 0.2s ease;
+  border-radius: 4px;
 }
 
 .react-flow__controls-button:hover {
-  background: #f8f9fa;
-  color: #007bff;
-}
-
-.react-flow__controls-button:last-child {
-  border-bottom: none;
+  background: var(--color-primary-hover);
+  color: white;
 }
 
 /* Mini-map styling */
 .react-flow__minimap {
-  background: white;
-  border: 1px solid #e9ecef;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
 }
 
 /* Background styling */
 .react-flow__background {
-  background-color: #fafafa;
+  background-color: var(--color-background);
 }
 
 /* Edge styling */
 .react-flow__edge-path {
-  stroke: #ccc;
+  stroke: var(--color-border);
   stroke-width: 2;
 }
 
 .react-flow__edge.selected .react-flow__edge-path {
-  stroke: #007bff;
+  stroke: var(--color-primary);
   stroke-width: 3;
 }
 
 /* Handle styling */
 .react-flow__handle {
-  background: #007bff;
-  border: 2px solid white;
+  background: var(--color-primary);
+  border: 2px solid var(--color-surface-elevated);
   width: 8px;
   height: 8px;
 }
@@ -213,6 +216,11 @@
   }
 }
 
+/* Hide React Flow attribution */
+.react-flow__attribution {
+  display: none !important;
+}
+
 /* Custom scrollbar for React Flow */
 .mindmap-flow-container .react-flow__viewport {
   scrollbar-width: thin;
@@ -225,14 +233,14 @@
 }
 
 .mindmap-flow-container .react-flow__viewport::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--color-surface);
 }
 
 .mindmap-flow-container .react-flow__viewport::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--color-border);
   border-radius: 4px;
 }
 
 .mindmap-flow-container .react-flow__viewport::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--color-text-secondary);
 }
