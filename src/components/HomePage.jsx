@@ -78,6 +78,22 @@ function HomePage() {
     }
   }
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    
+    // Check if the date is today
+    const isToday = date.toDateString() === now.toDateString()
+    
+    if (isToday) {
+      // Show only time if it's today
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    } else {
+      // Show full date if it's not today
+      return date.toLocaleDateString()
+    }
+  }
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       createNewMindmap()
@@ -134,6 +150,15 @@ function HomePage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
+            {searchTerm && (
+              <button
+                className="clear-search-btn"
+                onClick={() => setSearchTerm('')}
+                title="Clear search"
+              >
+                <X size={16} />
+              </button>
+            )}
           </div>
         </div>
         
@@ -274,11 +299,11 @@ function HomePage() {
                   <div className="mindmap-dates">
                     {mindmap.updated_at && mindmap.updated_at !== mindmap.created_at ? (
                       <p className="mindmap-date">
-                        Updated: {new Date(lastUpdated).toLocaleDateString()}
+                        Updated: {formatDate(lastUpdated)}
                       </p>
                     ) : (
                       <p className="mindmap-date">
-                        Created: {new Date(mindmap.created_at).toLocaleDateString()}
+                        Created: {formatDate(mindmap.created_at)}
                       </p>
                     )}
                   </div>

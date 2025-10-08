@@ -171,6 +171,22 @@ function MindMapPage() {
     }, 0)
   }
 
+  const formatLastUpdated = (dateString) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    
+    // Check if the date is today
+    const isToday = date.toDateString() === now.toDateString()
+    
+    if (isToday) {
+      // Show only time if it's today
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    } else {
+      // Show full date and time if it's not today
+      return date.toLocaleString()
+    }
+  }
+
   if (loading) {
     return (
       <div className="mindmap-page">
@@ -216,7 +232,7 @@ function MindMapPage() {
         <h1>{mindmap.name}</h1>
         <div className="header-actions">
           <span className="last-updated">
-            Last updated: {new Date(mindmap.updated_at || mindmap.created_at).toLocaleString()}
+            Last updated: {formatLastUpdated(mindmap.updated_at || mindmap.created_at)}
           </span>
           {saving && <span className="saving-indicator">Saving...</span>}
         </div>
