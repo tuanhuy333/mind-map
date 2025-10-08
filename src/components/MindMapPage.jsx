@@ -127,7 +127,7 @@ function MindMapPage() {
     return (
       <div className="mindmap-page">
         <div className="loading-state">
-          <p>Loading mindmap...</p>
+          <div className="loading-spinner"></div>
         </div>
       </div>
     )

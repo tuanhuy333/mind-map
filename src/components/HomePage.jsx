@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, X, BarChart3, FileText, Search, Grid3X3, List, Trash2 } from 'lucide-react'
+import { Plus, X, BarChart3, FileText, Search, Grid3X3, List, Trash2, LogOut } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import TimeoutWarning from './TimeoutWarning'
 import { mindmapService } from '../services/mindmapService'
+import { useAuth } from '../contexts/AuthContext'
 import './HomePage.css'
 
 function HomePage() {
@@ -15,6 +17,7 @@ function HomePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const navigate = useNavigate()
+  const { logout } = useAuth()
 
   // Load saved mindmaps from Supabase
   useEffect(() => {
@@ -111,6 +114,7 @@ function HomePage() {
 
   return (
     <div className="homepage">
+      <TimeoutWarning />
       <header className="homepage-header">
         <h1>
           <img src="/mindmap-icon.svg" alt="MindMap Icon" className="header-icon" />
@@ -135,14 +139,14 @@ function HomePage() {
         
         <div className="toolbar-actions">
           <div className="view-toggle">
-            <button 
+            <button
               className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
               onClick={() => setViewMode('grid')}
               title="Grid view"
             >
               <Grid3X3 size={18} />
             </button>
-            <button 
+            <button
               className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
               onClick={() => setViewMode('list')}
               title="List view"
@@ -150,10 +154,18 @@ function HomePage() {
               <List size={18} />
             </button>
           </div>
-          
+
           <ThemeToggle />
-          
-          <button 
+
+          <button
+            className="logout-btn"
+            onClick={logout}
+            title="Logout"
+          >
+            <LogOut size={18} />
+          </button>
+
+          <button
             className="new-project-btn"
             onClick={openCreateModal}
             title="Create new mindmap"
@@ -175,12 +187,38 @@ function HomePage() {
         )}
         
         {loading ? (
-          <div className="loading-state">
-            <p>Loading mindmaps...</p>
+          <div className="mindmaps-container grid">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="mindmap-card-skeleton">
+                <div className="skeleton-header">
+                  <div className="skeleton-title"></div>
+                  <div className="skeleton-delete"></div>
+                </div>
+                <div className="skeleton-description"></div>
+                <div className="skeleton-stats">
+                  <div className="skeleton-stat"></div>
+                  <div className="skeleton-stat"></div>
+                </div>
+                <div className="skeleton-preview"></div>
+                <div className="skeleton-preview"></div>
+                <div className="skeleton-dates">
+                  <div className="skeleton-date"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : mindmaps.length === 0 ? (
           <div className="empty-state">
             <p>No mindmaps yet</p>
+          </div>
+        ) : filteredMindmaps.length === 0 ? (
+          <div className="empty-search-state">
+            <div className="empty-search-icon">
+              <Search size={48} />
+            </div>
+            <h3>No results found</h3>
+            <p>No mindmaps match your search for "<strong>{searchTerm}</strong>"</p>
+            <p className="search-suggestion">Try searching with different keywords or check your spelling</p>
           </div>
         ) : (
           <div className={`mindmaps-container ${viewMode}`}>
@@ -234,12 +272,13 @@ function HomePage() {
                   )}
                   
                   <div className="mindmap-dates">
-                    <p className="mindmap-date">
-                      Created: {new Date(mindmap.created_at).toLocaleDateString()}
-                    </p>
-                    {mindmap.updated_at && mindmap.updated_at !== mindmap.created_at && (
+                    {mindmap.updated_at && mindmap.updated_at !== mindmap.created_at ? (
                       <p className="mindmap-date">
                         Updated: {new Date(lastUpdated).toLocaleDateString()}
+                      </p>
+                    ) : (
+                      <p className="mindmap-date">
+                        Created: {new Date(mindmap.created_at).toLocaleDateString()}
                       </p>
                     )}
                   </div>
