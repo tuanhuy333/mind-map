@@ -192,27 +192,167 @@
   right: -4px;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
+/* Tablet optimizations */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .mindmap-controls {
+    padding: 1.5rem 2rem;
+  }
+
   .legend {
-    gap: 0.5rem;
+    gap: 1.5rem;
+  }
+
+  .legend-item {
+    font-size: 0.9rem;
+  }
+
+  .legend-color {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mindmap-info {
+    padding: 1rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  .mindmap-info p {
+    margin: 0.75rem 0;
+  }
+
+  /* Larger touch targets for React Flow controls */
+  .react-flow__controls-button {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .react-flow__minimap {
+    width: 220px;
+    height: 140px;
+  }
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .mindmap-controls {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .legend {
+    gap: 0.125rem;
   }
   
   .legend-item {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
   }
   
   .legend-color {
-    width: 10px;
-    height: 10px;
+    width: 6px;
+    height: 6px;
   }
   
   .mindmap-info {
-    font-size: 0.7rem;
+    font-size: 0.6rem;
+    padding: 0.25rem 0.5rem;
   }
   
   .mindmap-info p {
-    margin: 0.25rem 0;
+    margin: 0.0625rem 0;
+  }
+
+  /* Smaller controls for mobile */
+  .react-flow__controls-button {
+    width: 24px;
+    height: 24px;
+    font-size: 9px;
+  }
+
+  .react-flow__minimap {
+    width: 100px;
+    height: 60px;
+  }
+}
+
+/* Tablet landscape optimizations */
+@media (max-width: 1024px) and (min-width: 769px) and (orientation: landscape) {
+  .mindmap-controls {
+    padding: 1rem 1.25rem;
+  }
+
+  .legend {
+    gap: 1rem;
+  }
+
+  .legend-item {
+    font-size: 0.8rem;
+  }
+
+  .legend-color {
+    width: 12px;
+    height: 12px;
+  }
+
+  .mindmap-info {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.8rem;
+  }
+
+  .mindmap-info p {
+    margin: 0.5rem 0;
+  }
+
+  /* Smaller touch targets for landscape tablet */
+  .react-flow__controls-button {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .react-flow__minimap {
+    width: 180px;
+    height: 110px;
+  }
+}
+
+/* Mobile landscape optimizations */
+@media (max-width: 768px) and (orientation: landscape) {
+  .mindmap-controls {
+    padding: 0.125rem 0.25rem;
+  }
+
+  .legend {
+    gap: 0.0625rem;
+  }
+  
+  .legend-item {
+    font-size: 0.55rem;
+  }
+  
+  .legend-color {
+    width: 4px;
+    height: 4px;
+  }
+  
+  .mindmap-info {
+    font-size: 0.55rem;
+    padding: 0.125rem 0.25rem;
+  }
+  
+  .mindmap-info p {
+    margin: 0.03125rem 0;
+  }
+
+  /* Smaller controls for landscape mobile */
+  .react-flow__controls-button {
+    width: 20px;
+    height: 20px;
+    font-size: 8px;
+  }
+
+  .react-flow__minimap {
+    width: 80px;
+    height: 50px;
   }
 }
 
