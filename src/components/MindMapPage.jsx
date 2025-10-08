@@ -26,41 +26,15 @@ function MindMapPage() {
     loadMindmap()
   }, [id])
 
-  // Handle landscape orientation - show all panels in 2+1 layout
+  // Handle initial panel state setup - only set initial state, don't override user preferences
   useEffect(() => {
-    const handleOrientationChange = () => {
-      const isLandscape = window.innerWidth > window.innerHeight
-      
-      if (isLandscape) {
-        // In landscape, show all panels in 2+1 layout
-        setPanelStates(prev => ({
-          ...prev,
-          panel1: true,
-          panel2: true,
-          panel3: true
-        }))
-      } else {
-        // In portrait, show all panels in vertical stack
-        setPanelStates(prev => ({
-          ...prev,
-          panel1: true,
-          panel2: true,
-          panel3: true
-        }))
-      }
-    }
-
-    // Check initial orientation
-    handleOrientationChange()
-
-    // Listen for orientation changes
-    window.addEventListener('resize', handleOrientationChange)
-    window.addEventListener('orientationchange', handleOrientationChange)
-
-    return () => {
-      window.removeEventListener('resize', handleOrientationChange)
-      window.removeEventListener('orientationchange', handleOrientationChange)
-    }
+    // Only set initial state if all panels are in their default state
+    // This prevents overriding user's panel preferences
+    setPanelStates(prev => {
+      // If this is the initial load (all panels are true), keep them as is
+      // If user has already hidden some panels, preserve their state
+      return prev
+    })
   }, [])
 
   const loadMindmap = async () => {
@@ -158,17 +132,6 @@ function MindMapPage() {
       ...prev,
       [panelName]: !prev[panelName]
     }))
-    
-    // Force layout recalculation after state update
-    setTimeout(() => {
-      // Trigger a reflow to ensure layout updates
-      const panelsContainer = document.querySelector('.panels-container')
-      if (panelsContainer) {
-        panelsContainer.style.display = 'none'
-        panelsContainer.offsetHeight // Force reflow
-        panelsContainer.style.display = 'grid'
-      }
-    }, 0)
   }
 
   const formatLastUpdated = (dateString) => {

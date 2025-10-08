@@ -4,39 +4,10 @@ import './MarkdownEditor.css'
 function MarkdownEditor({ content, onContentChange, activeSection }) {
   const [localContent, setLocalContent] = useState(content)
   const textareaRef = useRef(null)
-  const [isTyping, setIsTyping] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const [suggestions, setSuggestions] = useState([])
-  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(0)
-  const [suggestionPosition, setSuggestionPosition] = useState({ top: 0, left: 0 })
-  const [currentWord, setCurrentWord] = useState('')
-  const suggestionsListRef = useRef(null)
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [toast, setToast] = useState(null)
 
-  // Markdown suggestions data
-  const markdownSuggestions = [
-    { label: 'Heading 1', value: '# ', description: 'Large heading' },
-    { label: 'Heading 2', value: '## ', description: 'Medium heading' },
-    { label: 'Heading 3', value: '### ', description: 'Small heading' },
-    { label: 'Bold', value: '**text**', description: 'Bold text' },
-    { label: 'Italic', value: '*text*', description: 'Italic text' },
-    { label: 'Code', value: '`code`', description: 'Inline code' },
-    { label: 'Code Block', value: '```\ncode\n```', description: 'Code block' },
-    { label: 'Link', value: '[text](url)', description: 'Hyperlink' },
-    { label: 'Image', value: '![alt](url)', description: 'Image' },
-    { label: 'Bullet List', value: '- ', description: 'Bullet point' },
-    { label: 'Numbered List', value: '1. ', description: 'Numbered list' },
-    { label: 'Quote', value: '> ', description: 'Blockquote' },
-    { label: 'Horizontal Rule', value: '---', description: 'Divider line' },
-    { label: 'Table', value: '| Header | Header |\n|--------|--------|\n| Cell   | Cell   |', description: 'Table' },
-    { label: 'Task List', value: '- [ ] ', description: 'Checkbox' },
-    { label: 'Strikethrough', value: '~~text~~', description: 'Strikethrough text' },
-    { label: 'Indent', value: '  ', description: '2 spaces indentation' },
-    { label: 'Double Indent', value: '    ', description: '4 spaces indentation' },
-    { label: 'Triple Indent', value: '      ', description: '6 spaces indentation' }
-  ]
 
   useEffect(() => {
     setLocalContent(content)
@@ -49,26 +20,11 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
     }
   }, [activeSection])
 
-  // Auto-scroll selected suggestion into view
-  useEffect(() => {
-    if (showSuggestions && suggestionsListRef.current) {
-      const selectedItem = suggestionsListRef.current.children[selectedSuggestionIndex]
-      if (selectedItem) {
-        selectedItem.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
-        })
-      }
-    }
-  }, [selectedSuggestionIndex, showSuggestions])
 
   const handleChange = (e) => {
     const newContent = e.target.value
     setLocalContent(newContent)
     setHasUnsavedChanges(newContent !== content)
-    
-    // Check for suggestions trigger
-    checkForSuggestions(e.target)
   }
 
   const showToast = (message, type = 'success') => {
@@ -92,100 +48,8 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
     }
   }
 
-  const checkForSuggestions = (textarea) => {
-    const cursorPos = textarea.selectionStart
-    const textBefore = textarea.value.substring(0, cursorPos)
-    const lines = textBefore.split('\n')
-    const currentLine = lines[lines.length - 1]
-    
-    // Check if user typed a trigger character
-    const triggerMatch = currentLine.match(/(\s*)([#*`>|~-]|\d+\.|\s+)$/)
-    
-    if (triggerMatch) {
-      const trigger = triggerMatch[2]
-      const filteredSuggestions = markdownSuggestions.filter(suggestion => 
-        suggestion.value.toLowerCase().includes(trigger.toLowerCase()) ||
-        suggestion.label.toLowerCase().includes(trigger.toLowerCase())
-      )
-      
-      if (filteredSuggestions.length > 0) {
-        setSuggestions(filteredSuggestions)
-        setCurrentWord(trigger)
-        setSelectedSuggestionIndex(0)
-        setShowSuggestions(true)
-        updateSuggestionPosition(textarea, cursorPos)
-      } else {
-        setShowSuggestions(false)
-        setSuggestions([])
-      }
-    } else {
-      setShowSuggestions(false)
-      setSuggestions([])
-    }
-  }
 
-  const updateSuggestionPosition = (textarea, cursorPos) => {
-    const rect = textarea.getBoundingClientRect()
-    const viewportHeight = window.innerHeight
-    const viewportWidth = window.innerWidth
-    
-    // Calculate position below the textarea
-    let top = rect.bottom + 5
-    let left = rect.left
-    
-    // Check if dropdown would go off screen and adjust
-    const dropdownHeight = 300 // max-height from CSS
-    const dropdownWidth = 400 // max-width from CSS
-    
-    // Adjust vertical position if it would go off screen
-    if (top + dropdownHeight > viewportHeight) {
-      top = rect.top - dropdownHeight - 5
-    }
-    
-    // Adjust horizontal position if it would go off screen
-    if (left + dropdownWidth > viewportWidth) {
-      left = viewportWidth - dropdownWidth - 10
-    }
-    
-    // Ensure it doesn't go off the left side
-    if (left < 10) {
-      left = 10
-    }
-    
-    setSuggestionPosition({ top, left })
-  }
 
-  const insertSuggestion = (suggestion) => {
-    const textarea = textareaRef.current
-    const start = textarea.selectionStart
-    const end = textarea.selectionEnd
-    const textBefore = textarea.value.substring(0, start)
-    const textAfter = textarea.value.substring(end)
-    
-    // Remove the trigger characters
-    const lines = textBefore.split('\n')
-    const currentLine = lines[lines.length - 1]
-    const triggerMatch = currentLine.match(/(\s*)([#*`>|~-]|\d+\.|\s+)$/)
-    
-    let newText
-    if (triggerMatch) {
-      const beforeTrigger = textBefore.substring(0, textBefore.length - triggerMatch[2].length)
-      newText = beforeTrigger + suggestion.value + textAfter
-    } else {
-      newText = textBefore + suggestion.value + textAfter
-    }
-    
-    setLocalContent(newText)
-    setHasUnsavedChanges(newText !== content)
-    setShowSuggestions(false)
-    
-    // Set cursor position after the inserted text
-    setTimeout(() => {
-      const newCursorPos = start - (triggerMatch ? triggerMatch[2].length : 0) + suggestion.value.length
-      textarea.setSelectionRange(newCursorPos, newCursorPos)
-      textarea.focus()
-    }, 0)
-  }
 
   const scrollToSection = (lineNumber) => {
     if (textareaRef.current) {
@@ -215,42 +79,6 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
       return
     }
     
-    // Handle suggestion navigation
-    if (showSuggestions && suggestions.length > 0) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault()
-        e.stopPropagation()
-        setSelectedSuggestionIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        )
-        return
-      }
-      
-      if (e.key === 'ArrowUp') {
-        e.preventDefault()
-        e.stopPropagation()
-        setSelectedSuggestionIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        )
-        return
-      }
-      
-      if (e.key === 'Enter' || e.key === 'Tab') {
-        e.preventDefault()
-        e.stopPropagation()
-        if (suggestions[selectedSuggestionIndex]) {
-          insertSuggestion(suggestions[selectedSuggestionIndex])
-        }
-        return
-      }
-      
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation()
-        setShowSuggestions(false)
-        return
-      }
-    }
     
     // Handle Tab key
     if (e.key === 'Tab') {
@@ -411,21 +239,6 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
           >
             ⇤
           </button>
-          <button
-            className="toolbar-btn"
-            onClick={() => {
-              // Test suggestions by showing all markdown suggestions
-              setSuggestions(markdownSuggestions)
-              setShowSuggestions(true)
-              setSelectedSuggestionIndex(0)
-              if (textareaRef.current) {
-                updateSuggestionPosition(textareaRef.current, textareaRef.current.selectionStart)
-              }
-            }}
-            title="Show Markdown Suggestions"
-          >
-            💡
-          </button>
         </div>
       </div>
       
@@ -471,40 +284,6 @@ Tip: Use Tab to indent, Shift+Tab to unindent"
         </div>
       </div>
       
-      {/* Suggestions Dropdown */}
-      {showSuggestions && suggestions.length > 0 && (
-        <div 
-          className="suggestions-dropdown"
-          style={{
-            position: 'fixed',
-            top: suggestionPosition.top,
-            left: suggestionPosition.left,
-            zIndex: 1000
-          }}
-        >
-          <div className="suggestions-header">
-            <span>Markdown Suggestions ({selectedSuggestionIndex + 1}/{suggestions.length})</span>
-            <span className="suggestion-hint">↑↓ to navigate, Enter/Tab to select, Esc to close</span>
-          </div>
-          <div className="suggestions-list" ref={suggestionsListRef}>
-            {suggestions.map((suggestion, index) => (
-              <div
-                key={`${suggestion.label}-${index}`}
-                className={`suggestion-item ${index === selectedSuggestionIndex ? 'selected' : ''}`}
-                onClick={() => insertSuggestion(suggestion)}
-                onMouseEnter={() => setSelectedSuggestionIndex(index)}
-                style={{
-                  backgroundColor: index === selectedSuggestionIndex ? 'var(--color-primary-light)' : 'transparent'
-                }}
-              >
-                <div className="suggestion-label">{suggestion.label}</div>
-                <div className="suggestion-value">{suggestion.value}</div>
-                <div className="suggestion-description">{suggestion.description}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       
       {/* Toast Notification */}
       {toast && (
