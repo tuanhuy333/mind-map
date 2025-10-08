@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, X, BarChart3, FileText, Search, Grid3X3, List, Trash2 } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
+import { mindmapService } from '../services/mindmapService'
 import './HomePage.css'
 
 function HomePage() {
@@ -10,47 +11,68 @@ function HomePage() {
   const [viewMode, setViewMode] = useState('grid') // 'grid' or 'list'
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [newMindmapName, setNewMindmapName] = useState('')
+  const [newMindmapDescription, setNewMindmapDescription] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const navigate = useNavigate()
 
-  // Load saved mindmaps from localStorage
+  // Load saved mindmaps from Supabase
   useEffect(() => {
-    const savedMindmaps = JSON.parse(localStorage.getItem('mindmaps') || '[]')
-    setMindmaps(savedMindmaps)
+    loadMindmaps()
   }, [])
+
+  const loadMindmaps = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const data = await mindmapService.getAll()
+      setMindmaps(data)
+    } catch (err) {
+      console.error('Error loading mindmaps:', err)
+      setError('Failed to load mindmaps')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const openCreateModal = () => {
     setShowCreateModal(true)
     setNewMindmapName('')
+    setNewMindmapDescription('')
   }
 
   const closeCreateModal = () => {
     setShowCreateModal(false)
     setNewMindmapName('')
+    setNewMindmapDescription('')
   }
 
-  const createNewMindmap = () => {
+  const createNewMindmap = async () => {
     if (!newMindmapName.trim()) return
 
-    const newMindmap = {
-      id: Date.now().toString(),
-      name: newMindmapName.trim(),
-      createdAt: new Date().toISOString(),
-      content: '# New Mindmap\n\nStart writing your content here...',
-      structure: {
-        id: 'root',
-        text: newMindmapName.trim(),
-        children: []
+    try {
+      const newMindmap = {
+        name: newMindmapName.trim(),
+        description: newMindmapDescription.trim(),
+        content: '# New Mindmap\n\nStart writing your content here...',
+        structure: {
+          id: 'root',
+          text: newMindmapName.trim(),
+          children: []
+        }
       }
-    }
 
-    const updatedMindmaps = [...mindmaps, newMindmap]
-    setMindmaps(updatedMindmaps)
-    localStorage.setItem('mindmaps', JSON.stringify(updatedMindmaps))
-    
-    closeCreateModal()
-    
-    // Navigate to the new mindmap
-    navigate(`/mindmap/${newMindmap.id}`)
+      const createdMindmap = await mindmapService.create(newMindmap)
+      setMindmaps(prev => [createdMindmap, ...prev])
+      
+      closeCreateModal()
+      
+      // Navigate to the new mindmap
+      navigate(`/mindmap/${createdMindmap.id}`)
+    } catch (err) {
+      console.error('Error creating mindmap:', err)
+      setError('Failed to create mindmap')
+    }
   }
 
   const handleKeyPress = (e) => {
@@ -65,15 +87,21 @@ function HomePage() {
     navigate(`/mindmap/${mindmapId}`)
   }
 
-  const deleteMindmap = (mindmapId, e) => {
+  const deleteMindmap = async (mindmapId, e) => {
     e.stopPropagation()
-    const updatedMindmaps = mindmaps.filter(m => m.id !== mindmapId)
-    setMindmaps(updatedMindmaps)
-    localStorage.setItem('mindmaps', JSON.stringify(updatedMindmaps))
+    
+    try {
+      await mindmapService.delete(mindmapId)
+      setMindmaps(prev => prev.filter(m => m.id !== mindmapId))
+    } catch (err) {
+      console.error('Error deleting mindmap:', err)
+      setError('Failed to delete mindmap')
+    }
   }
 
   const filteredMindmaps = mindmaps.filter(mindmap =>
-    mindmap.name.toLowerCase().includes(searchTerm.toLowerCase())
+    mindmap.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (mindmap.description && mindmap.description.toLowerCase().includes(searchTerm.toLowerCase()))
   )
 
   const countNodes = (node) => {
@@ -84,7 +112,10 @@ function HomePage() {
   return (
     <div className="homepage">
       <header className="homepage-header">
-        <h1>MindMap</h1>
+        <h1>
+          <img src="/mindmap-icon.svg" alt="MindMap Icon" className="header-icon" />
+          MindMap
+        </h1>
         <p>Create interactive mindmaps with markdown content and visual connections</p>
       </header>
 
@@ -94,7 +125,7 @@ function HomePage() {
             <Search size={18} className="search-icon" />
             <input
               type="text"
-              placeholder="Search for Map"
+              placeholder="Search mindmaps by name or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -134,15 +165,27 @@ function HomePage() {
       </div>
 
       <div className="mindmaps-section">
+        {error && (
+          <div className="error-state">
+            <p>{error}</p>
+            <button onClick={loadMindmaps} className="retry-btn">
+              Retry
+            </button>
+          </div>
+        )}
         
-        {mindmaps.length === 0 ? (
+        {loading ? (
+          <div className="loading-state">
+            <p>Loading mindmaps...</p>
+          </div>
+        ) : mindmaps.length === 0 ? (
           <div className="empty-state">
             <p>No mindmaps yet</p>
           </div>
         ) : (
           <div className={`mindmaps-container ${viewMode}`}>
             {filteredMindmaps.map((mindmap) => {
-              const lastUpdated = mindmap.updatedAt || mindmap.createdAt
+              const lastUpdated = mindmap.updated_at || mindmap.created_at
               const contentPreview = mindmap.content.replace(/#+\s*/g, '').substring(0, 80)
               const nodeCount = mindmap.structure ? countNodes(mindmap.structure) : 0
               
@@ -162,6 +205,12 @@ function HomePage() {
                       <Trash2 size={18} />
                     </button>
                   </div>
+                  
+                  {mindmap.description && (
+                    <p className="mindmap-description">
+                      {mindmap.description}
+                    </p>
+                  )}
                   
                   <div className="mindmap-stats">
                     <span className="stat-item">
@@ -186,9 +235,9 @@ function HomePage() {
                   
                   <div className="mindmap-dates">
                     <p className="mindmap-date">
-                      Created: {new Date(mindmap.createdAt).toLocaleDateString()}
+                      Created: {new Date(mindmap.created_at).toLocaleDateString()}
                     </p>
-                    {mindmap.updatedAt && mindmap.updatedAt !== mindmap.createdAt && (
+                    {mindmap.updated_at && mindmap.updated_at !== mindmap.created_at && (
                       <p className="mindmap-date">
                         Updated: {new Date(lastUpdated).toLocaleDateString()}
                       </p>
@@ -222,6 +271,16 @@ function HomePage() {
                 onKeyDown={handleKeyPress}
                 autoFocus
                 className="modal-input"
+              />
+              
+              <label htmlFor="mindmap-description">Description (Optional)</label>
+              <textarea
+                id="mindmap-description"
+                placeholder="Enter a description for your mindmap..."
+                value={newMindmapDescription}
+                onChange={(e) => setNewMindmapDescription(e.target.value)}
+                className="modal-textarea"
+                rows="3"
               />
             </div>
             <div className="modal-footer">

@@ -4,6 +4,7 @@ import { ArrowLeft, Minus, Edit3, Map, FileText } from 'lucide-react'
 import MarkdownEditor from './MarkdownEditor'
 import MindMapVisualization from './MindMapVisualization'
 import ContentViewer from './ContentViewer'
+import { mindmapService } from '../services/mindmapService'
 import './MindMapPage.css'
 
 function MindMapPage() {
@@ -13,6 +14,8 @@ function MindMapPage() {
   const [activeSection, setActiveSection] = useState(null)
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState(null)
   const [panelStates, setPanelStates] = useState({
     panel1: true,  // Markdown Editor
     panel2: true,  // Mind Map
@@ -23,22 +26,29 @@ function MindMapPage() {
     loadMindmap()
   }, [id])
 
-  const loadMindmap = () => {
-    const savedMindmaps = JSON.parse(localStorage.getItem('mindmaps') || '[]')
-    const foundMindmap = savedMindmaps.find(m => m.id === id)
-    
-    if (foundMindmap) {
-      setMindmap(foundMindmap)
-      setContent(foundMindmap.content)
-      setActiveSection(null)
-    } else {
-      // Mindmap not found, redirect to home
-      navigate('/')
+  const loadMindmap = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+      const foundMindmap = await mindmapService.getById(id)
+      
+      if (foundMindmap) {
+        setMindmap(foundMindmap)
+        setContent(foundMindmap.content)
+        setActiveSection(null)
+      } else {
+        // Mindmap not found, redirect to home
+        navigate('/')
+      }
+    } catch (err) {
+      console.error('Error loading mindmap:', err)
+      setError('Failed to load mindmap')
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
-  const saveContent = (newContent) => {
+  const saveContent = async (newContent) => {
     setContent(newContent)
     
     // Update mindmap structure based on content
@@ -47,18 +57,21 @@ function MindMapPage() {
     const updatedMindmap = {
       ...mindmap,
       content: newContent,
-      structure: structure,
-      updatedAt: new Date().toISOString()
+      structure: structure
     }
     
     setMindmap(updatedMindmap)
     
-    // Save to localStorage
-    const savedMindmaps = JSON.parse(localStorage.getItem('mindmaps') || '[]')
-    const updatedMindmaps = savedMindmaps.map(m => 
-      m.id === id ? updatedMindmap : m
-    )
-    localStorage.setItem('mindmaps', JSON.stringify(updatedMindmaps))
+    // Save to Supabase
+    try {
+      setSaving(true)
+      await mindmapService.update(updatedMindmap)
+    } catch (err) {
+      console.error('Error saving mindmap:', err)
+      setError('Failed to save mindmap')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const parseContentToStructure = (content) => {
@@ -111,11 +124,39 @@ function MindMapPage() {
   }
 
   if (loading) {
-    return <div className="loading">Loading mindmap...</div>
+    return (
+      <div className="mindmap-page">
+        <div className="loading-state">
+          <p>Loading mindmap...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="mindmap-page">
+        <div className="error-state">
+          <p>{error}</p>
+          <button onClick={loadMindmap} className="retry-btn">
+            Retry
+          </button>
+        </div>
+      </div>
+    )
   }
 
   if (!mindmap) {
-    return <div className="error">Mindmap not found</div>
+    return (
+      <div className="mindmap-page">
+        <div className="error-state">
+          <p>Mindmap not found</p>
+          <button onClick={() => navigate('/')} className="retry-btn">
+            Back to Home
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -127,8 +168,9 @@ function MindMapPage() {
         <h1>{mindmap.name}</h1>
         <div className="header-actions">
           <span className="last-updated">
-            Last updated: {new Date(mindmap.updatedAt || mindmap.createdAt).toLocaleString()}
+            Last updated: {new Date(mindmap.updated_at || mindmap.created_at).toLocaleString()}
           </span>
+          {saving && <span className="saving-indicator">Saving...</span>}
         </div>
       </header>
 

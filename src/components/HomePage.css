@@ -18,6 +18,21 @@
   color: var(--color-text-primary);
   margin: 0 0 0.5rem 0;
   font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.header-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  transition: transform 0.2s ease;
+}
+
+.header-icon:hover {
+  transform: scale(1.05);
 }
 
 .homepage-header p {
@@ -163,6 +178,40 @@
   font-style: italic;
 }
 
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+}
+
+.error-state {
+  text-align: center;
+  padding: 2rem;
+  color: #ef4444;
+  font-size: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+}
+
+.retry-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.retry-btn:hover {
+  background: #dc2626;
+}
+
 .mindmaps-container {
   margin-top: 1rem;
 }
@@ -256,6 +305,19 @@
   color: var(--color-text-primary);
   font-size: 1.1rem;
   font-weight: 500;
+}
+
+.mindmap-description {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0.5rem 0;
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .delete-btn {
@@ -359,6 +421,11 @@
   
   .homepage-header h1 {
     font-size: 2rem;
+  }
+  
+  .header-icon {
+    width: 2rem;
+    height: 2rem;
   }
   
   .mindmaps-container.grid {
@@ -509,6 +576,27 @@
 }
 
 .modal-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+.modal-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  background: var(--color-surface-elevated);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.modal-textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-light);
