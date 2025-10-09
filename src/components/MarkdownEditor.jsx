@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import './MarkdownEditor.css'
 
 function MarkdownEditor({ content, onContentChange, activeSection }) {
@@ -7,12 +7,49 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [toast, setToast] = useState(null)
+  const debounceTimeoutRef = useRef(null)
+  const lastSavedContentRef = useRef(content)
+  const [hasUnsavedToDatabase, setHasUnsavedToDatabase] = useState(false)
+  const isRealTimeUpdateRef = useRef(false)
 
 
   useEffect(() => {
+    // Update localContent when content prop changes (e.g., from external source)
     setLocalContent(content)
-    setHasUnsavedChanges(false)
+    
+    // Only reset states if this is NOT a real-time update
+    if (!isRealTimeUpdateRef.current) {
+      lastSavedContentRef.current = content
+      setHasUnsavedChanges(false)
+      setHasUnsavedToDatabase(false)
+    }
+    
+    // Reset the flag
+    isRealTimeUpdateRef.current = false
   }, [content])
+
+  // Debounced function to update parent component in real-time
+  const debouncedUpdateParent = useCallback((newContent) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current)
+    }
+    
+    debounceTimeoutRef.current = setTimeout(() => {
+      // Set flag to indicate this is a real-time update
+      isRealTimeUpdateRef.current = true
+      // Call onContentChange with a flag to indicate this is a real-time update
+      onContentChange(newContent, { isRealTime: true })
+    }, 300) // 300ms debounce
+  }, [onContentChange])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     if (activeSection && activeSection.lineNumber !== undefined) {
@@ -23,8 +60,14 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
 
   const handleChange = (e) => {
     const newContent = e.target.value
+    const hasChanges = newContent !== lastSavedContentRef.current
+    
     setLocalContent(newContent)
-    setHasUnsavedChanges(newContent !== content)
+    setHasUnsavedChanges(hasChanges)
+    setHasUnsavedToDatabase(hasChanges)
+    
+    // Trigger real-time update with debouncing
+    debouncedUpdateParent(newContent)
   }
 
   const showToast = (message, type = 'success') => {
@@ -33,12 +76,20 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
   }
 
   const handleSave = async () => {
-    if (!hasUnsavedChanges) return
+    if (!hasUnsavedToDatabase) return
     
     try {
       setIsSaving(true)
-      await onContentChange(localContent)
+      // Clear any pending debounced updates
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
+      }
+      // Call onContentChange with save flag
+      await onContentChange(localContent, { isRealTime: false, shouldSave: true })
+      // Update the last saved content reference
+      lastSavedContentRef.current = localContent
       setHasUnsavedChanges(false)
+      setHasUnsavedToDatabase(false)
       showToast('Changes saved successfully!', 'success')
     } catch (error) {
       console.error('Error saving content:', error)
@@ -92,6 +143,9 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
           const newText = textarea.value.substring(0, cursorPos - indentToRemove) + 
                          textarea.value.substring(cursorPos)
           setLocalContent(newText)
+          setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+          setHasUnsavedToDatabase(newText !== lastSavedContentRef.current)
+          debouncedUpdateParent(newText)
           
           setTimeout(() => {
             const newCursorPos = cursorPos - indentToRemove
@@ -104,6 +158,8 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
         const newText = textarea.value.substring(0, cursorPos) + indent + 
                        textarea.value.substring(cursorPos)
         setLocalContent(newText)
+        setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+        debouncedUpdateParent(newText)
         
         setTimeout(() => {
           const newCursorPos = cursorPos + indent.length
@@ -122,6 +178,8 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
         const newText = textarea.value.substring(0, cursorPos) + '\n' + indent + 
                        textarea.value.substring(cursorPos)
         setLocalContent(newText)
+        setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+        debouncedUpdateParent(newText)
         
         // Set cursor position after the newline and indent
         setTimeout(() => {
@@ -136,7 +194,7 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
     <div className="markdown-editor">
       <div className="editor-toolbar">
         <div className="toolbar-section">
-          {hasUnsavedChanges && <span className="unsaved-indicator">Unsaved changes</span>}
+          {hasUnsavedToDatabase && <span className="unsaved-indicator">Unsaved changes</span>}
           {isSaving && (
             <div className="saving-indicator">
               <div className="loading-spinner-small"></div>
@@ -156,7 +214,9 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
                             `**${selectedText}**` + 
                             localContent.substring(end)
               setLocalContent(newText)
-              setHasUnsavedChanges(newText !== content)
+              setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+              setHasUnsavedToDatabase(newText !== lastSavedContentRef.current)
+              debouncedUpdateParent(newText)
             }}
             title="Bold"
           >
@@ -173,7 +233,9 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
                             `*${selectedText}*` + 
                             localContent.substring(end)
               setLocalContent(newText)
-              setHasUnsavedChanges(newText !== content)
+              setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+              setHasUnsavedToDatabase(newText !== lastSavedContentRef.current)
+              debouncedUpdateParent(newText)
             }}
             title="Italic"
           >
@@ -190,7 +252,9 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
                             `# ${selectedText}` + 
                             localContent.substring(end)
               setLocalContent(newText)
-              setHasUnsavedChanges(newText !== content)
+              setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+              setHasUnsavedToDatabase(newText !== lastSavedContentRef.current)
+              debouncedUpdateParent(newText)
             }}
             title="Heading"
           >
@@ -209,7 +273,9 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
                             indentedLines + 
                             localContent.substring(end)
               setLocalContent(newText)
-              setHasUnsavedChanges(newText !== content)
+              setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+              setHasUnsavedToDatabase(newText !== lastSavedContentRef.current)
+              debouncedUpdateParent(newText)
             }}
             title="Indent (Tab)"
           >
@@ -233,7 +299,9 @@ function MarkdownEditor({ content, onContentChange, activeSection }) {
                             unindentedLines + 
                             localContent.substring(end)
               setLocalContent(newText)
-              setHasUnsavedChanges(newText !== content)
+              setHasUnsavedChanges(newText !== lastSavedContentRef.current)
+              setHasUnsavedToDatabase(newText !== lastSavedContentRef.current)
+              debouncedUpdateParent(newText)
             }}
             title="Unindent (Shift+Tab)"
           >
@@ -274,10 +342,10 @@ Tip: Use Tab to indent, Shift+Tab to unindent"
         </div>
         <div className="footer-right">
           <button
-            className={`save-btn ${hasUnsavedChanges ? 'has-changes' : ''}`}
+            className={`save-btn ${hasUnsavedToDatabase ? 'has-changes' : ''}`}
             onClick={handleSave}
-            disabled={!hasUnsavedChanges || isSaving}
-            title="Save changes (Ctrl+S)"
+            disabled={!hasUnsavedToDatabase || isSaving}
+            title="Save to database (Ctrl+S)"
           >
             {isSaving ? 'Saving...' : 'Save'}
           </button>

@@ -59,7 +59,7 @@ function MindMapPage() {
     }
   }
 
-  const saveContent = async (newContent) => {
+  const saveContent = async (newContent, options = {}) => {
     setContent(newContent)
     
     // Update mindmap structure based on content
@@ -73,15 +73,17 @@ function MindMapPage() {
     
     setMindmap(updatedMindmap)
     
-    // Save to Supabase
-    try {
-      setSaving(true)
-      await mindmapService.update(updatedMindmap)
-    } catch (err) {
-      console.error('Error saving mindmap:', err)
-      setError('Failed to save mindmap')
-    } finally {
-      setSaving(false)
+    // Only save to database if explicitly requested (not for real-time updates)
+    if (options.shouldSave) {
+      try {
+        setSaving(true)
+        await mindmapService.update(updatedMindmap)
+      } catch (err) {
+        console.error('Error saving mindmap:', err)
+        setError('Failed to save mindmap')
+      } finally {
+        setSaving(false)
+      }
     }
   }
 
